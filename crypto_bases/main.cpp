@@ -66,24 +66,8 @@ int main(int argc, char* argv[])
 
         mbedtls_sha512(input, inlen-64, hash_output, 0);
         if (!strcmp((char*)given_hash, (char*)hash_output)){
-            cerr << "fuck" << endl;
+            cerr << "Damaged message, hashes are not the same" << endl;
         }
-       /* for(int i = 0; i < 64; ++i){
-            if(given_hash[i] != hash_output[i]){
-                cout << "nerovnaju sa" << endl;
-                break;
-            }
-
-        }*/
-        {
-            cout.write((char*)given_hash, 64);
-            cout << endl;
-            cout.write((char*)hash_output, 64);
-
-        }
-
-        //ohash.write((char*)input, inlen);
-
     }
 
     delete[] input;
