@@ -49,11 +49,9 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = ../crypto_bases/main.cpp \
-		../crypto_bases/aes.c \
-		../crypto_bases/aesni.c 
+		../crypto_bases/sha512.c 
 OBJECTS       = main.o \
-		aes.o \
-		aesni.o
+		sha512.o
 DIST          = ../../../../Qt/5.5/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.5/gcc_64/mkspecs/common/unix.conf \
 		../../../../Qt/5.5/gcc_64/mkspecs/common/linux.conf \
@@ -180,8 +178,7 @@ DIST          = ../../../../Qt/5.5/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.5/gcc_64/mkspecs/features/yacc.prf \
 		../../../../Qt/5.5/gcc_64/mkspecs/features/lex.prf \
 		../crypto_bases/crypto_bases.pro  ../crypto_bases/main.cpp \
-		../crypto_bases/aes.c \
-		../crypto_bases/aesni.c
+		../crypto_bases/sha512.c
 QMAKE_TARGET  = crypto_bases
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = crypto_bases
@@ -505,24 +502,18 @@ compiler_clean:
 
 ####### Compile
 
-main.o: ../crypto_bases/main.cpp ../crypto_bases/mbedtls/aes.h \
+main.o: ../crypto_bases/main.cpp ../crypto_bases/mbedtls/cipher_internal.h \
 		../crypto_bases/mbedtls/config.h \
-		../crypto_bases/mbedtls/check_config.h
+		../crypto_bases/mbedtls/check_config.h \
+		../crypto_bases/mbedtls/cipher.h \
+		../crypto_bases/mbedtls/sha512.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../crypto_bases/main.cpp
 
-aes.o: ../crypto_bases/aes.c ../crypto_bases/mbedtls/config.h \
+sha512.o: ../crypto_bases/sha512.c ../crypto_bases/mbedtls/config.h \
 		../crypto_bases/mbedtls/check_config.h \
-		../crypto_bases/mbedtls/aes.h \
-		../crypto_bases/mbedtls/padlock.h \
-		../crypto_bases/mbedtls/aesni.h \
+		../crypto_bases/mbedtls/sha512.h \
 		../crypto_bases/mbedtls/platform.h
-	$(CC) -c $(CFLAGS) $(INCPATH) -o aes.o ../crypto_bases/aes.c
-
-aesni.o: ../crypto_bases/aesni.c ../crypto_bases/mbedtls/config.h \
-		../crypto_bases/mbedtls/check_config.h \
-		../crypto_bases/mbedtls/aesni.h \
-		../crypto_bases/mbedtls/aes.h
-	$(CC) -c $(CFLAGS) $(INCPATH) -o aesni.o ../crypto_bases/aesni.c
+	$(CC) -c $(CFLAGS) $(INCPATH) -o sha512.o ../crypto_bases/sha512.c
 
 ####### Install
 
