@@ -4,5 +4,7 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    sha512.c
+    sha512.c \
+    aes.c \
+    aesni.c
 

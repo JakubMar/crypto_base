@@ -49,9 +49,13 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = ../crypto_bases/main.cpp \
-		../crypto_bases/sha512.c 
+		../crypto_bases/sha512.c \
+		../crypto_bases/aes.c \
+		../crypto_bases/aesni.c 
 OBJECTS       = main.o \
-		sha512.o
+		sha512.o \
+		aes.o \
+		aesni.o
 DIST          = ../../../../Qt/5.5/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.5/gcc_64/mkspecs/common/unix.conf \
 		../../../../Qt/5.5/gcc_64/mkspecs/common/linux.conf \
@@ -178,7 +182,9 @@ DIST          = ../../../../Qt/5.5/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.5/gcc_64/mkspecs/features/yacc.prf \
 		../../../../Qt/5.5/gcc_64/mkspecs/features/lex.prf \
 		../crypto_bases/crypto_bases.pro  ../crypto_bases/main.cpp \
-		../crypto_bases/sha512.c
+		../crypto_bases/sha512.c \
+		../crypto_bases/aes.c \
+		../crypto_bases/aesni.c
 QMAKE_TARGET  = crypto_bases
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = crypto_bases
@@ -514,6 +520,20 @@ sha512.o: ../crypto_bases/sha512.c ../crypto_bases/mbedtls/config.h \
 		../crypto_bases/mbedtls/sha512.h \
 		../crypto_bases/mbedtls/platform.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o sha512.o ../crypto_bases/sha512.c
+
+aes.o: ../crypto_bases/aes.c ../crypto_bases/mbedtls/config.h \
+		../crypto_bases/mbedtls/check_config.h \
+		../crypto_bases/mbedtls/aes.h \
+		../crypto_bases/mbedtls/padlock.h \
+		../crypto_bases/mbedtls/aesni.h \
+		../crypto_bases/mbedtls/platform.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -o aes.o ../crypto_bases/aes.c
+
+aesni.o: ../crypto_bases/aesni.c ../crypto_bases/mbedtls/config.h \
+		../crypto_bases/mbedtls/check_config.h \
+		../crypto_bases/mbedtls/aesni.h \
+		../crypto_bases/mbedtls/aes.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -o aesni.o ../crypto_bases/aesni.c
 
 ####### Install
 

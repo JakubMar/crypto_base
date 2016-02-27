@@ -40,47 +40,72 @@ int main(int argc, char* argv[])
     infile.seekg(0, infile.end);
     size_t inlen = infile.tellg();
     infile.seekg(0, infile.beg);
-    unsigned char* input = new unsigned char[inlen];
+    size_t inblock_size = 16;
+    unsigned char input[inblock_size];
     unsigned char hash_output[64];
+    mbedtls_sha512_context ct;
+    mbedtls_sha512_init( &ct );
+    mbedtls_sha512_starts( &ct, 0 );
 
     if (!mode){
 
 
-        infile.read((char*)input, inlen);
-        mbedtls_sha512( input, inlen, hash_output, 0 );
-        //cout.write((char*)hash_output, 64); ////////////////////
 
+        for(int i = 0; inlen - i > inblock_size; i = i+inblock_size){
+            infile.read((char*)input, inblock_size);
+            mbedtls_sha512_update( &ct, input, inblock_size );
 
+            //zasifrujem blok
+
+            outfile.write((char*)input, inblock_size);
+        }
+
+        infile.read((char*)input, inlen % inblock_size);
+        mbedtls_sha512_update( &ct, input, inlen % inblock_size );
+        //padding a zasifrujem posledny blok
+        outfile.write((char*)input, inlen % inblock_size);
+
+        mbedtls_sha512_finish( &ct, hash_output );
         outfile.write((char*)hash_output, 64);
-        //zašifruje a pripojí
-        outfile.write((char*)input, inlen);
 
     }
 
     else{
         unsigned char given_hash[64];
-        infile.read((char*)given_hash, 64);
-        infile.read((char*)input, inlen - 64);
-        cout.write((char*)input, inlen-64);
-        //dešifrujem input
+        //dlzka viac ako 64
 
-        mbedtls_sha512(input, inlen-64, hash_output, 0);
-        if (!strcmp((char*)given_hash, (char*)hash_output)){
-            cerr << "Damaged message, hashes are not the same" << endl;
+        for(int i = 0; (inlen-64) - i > inblock_size; i = i+inblock_size){
+            infile.read((char*)input, inblock_size);
+            //dešifrujem blok
+            mbedtls_sha512_update( &ct, input, inblock_size );
         }
+
+        infile.read((char*)input, (inlen-64) % inblock_size);
+        //dešifrujem
+        //outfile.write((char*)input, (inlen-64) % inblock_size);
+        mbedtls_sha512_update( &ct, input, (inlen-64) % inblock_size );
+        mbedtls_sha512_finish( &ct, hash_output );
+
+        infile.read((char*)given_hash, 64);
+
+        outfile.write((char*)given_hash, 64);
+        outfile << endl;
+        outfile.write((char*)hash_output, 64);
+
+
+        for (size_t i = 0; i < 64; ++i){
+        if (given_hash[i] != hash_output[i]){
+            cerr << "Damaged message, hashes are not the same" << endl;
+            break;
+        }
+        }
+
+
     }
 
-    delete[] input;
     infile.close();
     outfile.close();
-
-/*
-    mbedtls_cipher_init	(&ctx);
-    mbedtls_cipher_setup(&ctx, mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_AES_128_ECB));
-    mbedtls_cipher_set_padding_mode(&ctx, MBEDTLS_PADDING_PKCS7);
-    mbedtls_cipher_setkey(&ctx, key, 128, MBEDTLS_ENCRYPT);
-    mbedtls_cipher_crypt(&ctx, iv, 16, input, inlen, output, &olen);
-*/
+    mbedtls_sha512_free( &ct );
 
     cout << "Hello World!" << endl;
     return 0;
