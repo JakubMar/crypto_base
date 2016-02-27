@@ -7,6 +7,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+    /* parsing arguments */
     if(argc != 4){
         cerr << "Wrong number of parameters: <enc = 0 | dec = 1> <input_file> <output_file>" << endl;
         return 1;
@@ -32,6 +33,7 @@ int main(int argc, char* argv[])
         return 3;
     }
 
+    /* initialization */
     infile.seekg(0, infile.end);
     size_t inlen = infile.tellg();
     infile.seekg(0, infile.beg);
@@ -50,14 +52,12 @@ int main(int argc, char* argv[])
     /* encryption */
     if (!mode){
         mbedtls_aes_setkey_enc(&ctx, key, 128);
+
         for(int i = 0; inlen - i > inblock_size; i = i+inblock_size){
             infile.read((char*)input, inblock_size);
             mbedtls_aes_crypt_cbc( &ctx, MBEDTLS_AES_ENCRYPT, inblock_size, iv, input, output);
             outfile.write((char*)output, inblock_size);
-
             mbedtls_sha512_update( &ct, input, inblock_size );
-            //mbedtls_sha512_update( &ct, input, inblock_size );
-
         }
 
         infile.read((char*)input, inlen % inblock_size);
@@ -67,15 +67,14 @@ int main(int argc, char* argv[])
         mbedtls_aes_crypt_cbc( &ctx, MBEDTLS_AES_ENCRYPT, inblock_size, iv, input, output);
         outfile.write((char*)output, inblock_size);
         mbedtls_sha512_update( &ct, input, inblock_size );
-        //mbedtls_sha512_update( &ct, input, inlen % inblock_size );
-
         mbedtls_sha512_finish( &ct, hash_output );
         outfile.write((char*)hash_output, 64);
     }
+
     /*decryption*/
     else{
         if ((inlen < 64) || (inlen % inblock_size != 0)){
-            cerr << "not suitable format - too short message" << endl;
+            cerr << "not suitable length of input file" << endl;
             return 4;
         }
         mbedtls_aes_setkey_dec(&ctx, key, 128);
@@ -92,24 +91,22 @@ int main(int argc, char* argv[])
         unsigned char given_hash[64];
         infile.read((char*)given_hash, 64);
 
-        outfile << endl;
-        outfile.write((char*)given_hash, 64);
-        outfile << endl;
-        outfile.write((char*)hash_output, 64);
+        cout << "hash control: " <<endl;
+        cout.write((char*)given_hash, 64);
+        cout << endl;
+        cout.write((char*)hash_output, 64);
 
         for (size_t i = 0; i < 64; ++i){
             if (given_hash[i] != hash_output[i]){
-                cerr << "Damaged message, hashes are not the same" << endl;
+                cerr << "nok, damaged message" << endl;
                 break;
             }
         }
-
-
+        cout << "\nok" << endl;
     }
+
     infile.close();
     outfile.close();
-
-    cout << "Hello World!" << endl;     //////////////////////////////////
     return 0;
 }
 
