@@ -8,3 +8,5 @@ SOURCES += main.cpp \
     aes.c \
     aesni.c
 
+HEADERS +=
+

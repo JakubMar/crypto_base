@@ -508,10 +508,9 @@ compiler_clean:
 
 ####### Compile
 
-main.o: ../crypto_bases/main.cpp ../crypto_bases/mbedtls/cipher_internal.h \
+main.o: ../crypto_bases/main.cpp ../crypto_bases/mbedtls/aes.h \
 		../crypto_bases/mbedtls/config.h \
 		../crypto_bases/mbedtls/check_config.h \
-		../crypto_bases/mbedtls/cipher.h \
 		../crypto_bases/mbedtls/sha512.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../crypto_bases/main.cpp
 
